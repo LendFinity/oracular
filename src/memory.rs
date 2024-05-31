@@ -1,8 +1,8 @@
 use ic_stable_structures::stable_structures::DefaultMemoryImpl;
-use ic_stable_structures::{MemoryId, MemoryManager, VirtualMemory};
+use ic_stable_structures::{IcMemoryManager, MemoryId, VirtualMemory};
 
 thread_local! {
-    pub static MEMORY_MANAGER: MemoryManager<DefaultMemoryImpl> = MemoryManager::init(DefaultMemoryImpl::default());
+    pub static MEMORY_MANAGER: IcMemoryManager<DefaultMemoryImpl> = IcMemoryManager::init(DefaultMemoryImpl::default());
 }
 
 pub type MemoryType = VirtualMemory<DefaultMemoryImpl>;

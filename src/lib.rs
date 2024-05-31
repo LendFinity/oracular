@@ -9,10 +9,12 @@ mod parser;
 pub mod provider;
 pub mod state;
 
+use candid::pretty::candid::compile;
+
 pub fn idl() -> String {
     use crate::canister::Oracular;
 
     let oracle_idl = Oracular::idl();
 
-    candid::bindings::candid::compile(&oracle_idl.env.env, &Some(oracle_idl.actor))
+    compile(&oracle_idl.env.env, &Some(oracle_idl.actor))
 }

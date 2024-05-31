@@ -5,14 +5,14 @@ use std::collections::BTreeMap;
 use candid::CandidType;
 use did::H160;
 use ic_exports::ic_cdk_timers::TimerId;
-use ic_stable_structures::{
-    Bound, ChunkSize, SlicedStorable, StableUnboundedMap, Storable, UnboundedMapStructure,
-};
-use serde::{Deserialize, Serialize};
 
 use crate::canister::{EvmDestination, Origin};
 use crate::error::{Error, Result};
 use crate::memory::{MemoryType, MEMORY_MANAGER, ORACLE_STORAGE_MEMORY_ID};
+use ic_stable_structures::BTreeMapStructure;
+use ic_stable_structures::IterableSortedMapStructure;
+use ic_stable_structures::{Bound, CachedStableBTreeMap, Storable};
+use serde::{Deserialize, Serialize};
 
 /// Storage for Oracle metadata
 #[derive(Debug, Default, Clone)]
@@ -41,7 +41,7 @@ impl OracleStorage {
             let mut map = storage.get(&user_address).unwrap_or_default();
 
             map.0.insert(evm.contract, metadata);
-            storage.insert(&user_address, &map);
+            storage.insert(user_address, map);
         });
     }
 
@@ -128,7 +128,7 @@ impl OracleStorage {
             if map.0.is_empty() {
                 storage.remove(&user_address).expect("User should exist");
             } else {
-                storage.insert(&user_address, &map);
+                storage.insert(user_address, map);
             }
 
             Ok(())
@@ -165,7 +165,7 @@ impl OracleStorage {
                 metadata.timer_id = timer_id;
             }
 
-            storage.insert(&user_address, &metadata_collection);
+            storage.insert(user_address, metadata_collection);
 
             Ok(())
         })
@@ -193,7 +193,9 @@ impl OracleStorage {
 }
 
 thread_local! {
-    static ORACLE_STORAGE: RefCell<StableUnboundedMap<H160, MetadataCollection, MemoryType>> = RefCell::new(StableUnboundedMap::new(MEMORY_MANAGER.with(|mm|mm.get(ORACLE_STORAGE_MEMORY_ID))));
+    static ORACLE_STORAGE: RefCell<CachedStableBTreeMap<H160, MetadataCollection, MemoryType>> = RefCell::new(CachedStableBTreeMap::new(MEMORY_MANAGER.with(|mm|mm.get(ORACLE_STORAGE_MEMORY_ID)), 256));
+
+
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -222,10 +224,6 @@ impl Storable for MetadataCollection {
 /// The key is the EVM contract address
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct MetadataCollection(BTreeMap<H160, StorableOracleMetadata>);
-
-impl SlicedStorable for MetadataCollection {
-    const CHUNK_SIZE: ChunkSize = 64;
-}
 
 /// Struct used to store the oracle metadata
 #[derive(Debug, Clone, Serialize, Deserialize, CandidType)]

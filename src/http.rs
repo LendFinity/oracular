@@ -155,7 +155,7 @@ pub async fn call_jsonrpc(
     );
     let body = serde_json::to_vec(&serde_json::json!({
         "jsonrpc": "2.0",
-        "id": 1,
+        "id": method,
         "method": method,
         "params": params,
     }))
@@ -165,7 +165,7 @@ pub async fn call_jsonrpc(
 
     let res = http_outcall(url, HttpMethod::POST, Some(body), cost, max_response_bytes).await?;
 
-    if res.status != 200 {
+    if res.status != 200_u64 {
         return Err(Error::Internal(format!(
             "error calling jsonrpc, status: {} res: {}",
             res.status,
@@ -195,7 +195,7 @@ pub async fn get_price(url: &str, json_path: &str) -> Result<U256> {
     let cost = get_request_costs(url, 0, 8000);
     let res = http_outcall(url, HttpMethod::GET, None, cost, Some(8000)).await?;
 
-    if res.status != 200 {
+    if res.status != 200_u64 {
         return Err(Error::Http(format!(
             "error fetching price, status: {} res: {}",
             res.status,

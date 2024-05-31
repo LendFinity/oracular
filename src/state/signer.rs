@@ -1,9 +1,8 @@
 use candid::CandidType;
-use did::error::EvmError;
 use did::transaction::Signature;
 use did::H160;
 use eth_signer::ic_sign::{DerivationPath, SigningKeyId};
-use eth_signer::sign_strategy::{IcSigner, TransactionSigner};
+use eth_signer::sign_strategy::{IcSigner, TransactionSigner, TransactionSignerResult};
 use ethers_core::types::transaction::eip2718::TypedTransaction;
 use serde::Deserialize;
 
@@ -36,17 +35,11 @@ impl OracleSigner {
 #[async_trait::async_trait(?Send)]
 impl TransactionSigner for OracleSigner {
     /// Returns the `sender` address for the given identity
-    async fn get_address(&self) -> did::error::Result<H160> {
+    async fn get_address(&self) -> TransactionSignerResult<H160> {
         let pubkey = IcSigner {}
-            .public_key(self.key_id, self.derivation_path.clone())
-            .await
-            .map_err(|e| EvmError::from(format!("failed to get address: {e}")))?;
-        let address: H160 = IcSigner
-            .pubkey_to_address(&pubkey)
-            .map_err(|e| {
-                EvmError::Internal(format!("failed to convert public key to address: {e}"))
-            })?
-            .into();
+            .public_key(self.key_id.clone(), self.derivation_path.clone())
+            .await?;
+        let address: H160 = IcSigner.pubkey_to_address(&pubkey)?.into();
 
         Ok(address)
     }
@@ -55,26 +48,30 @@ impl TransactionSigner for OracleSigner {
     async fn sign_transaction(
         &self,
         transaction: &TypedTransaction,
-    ) -> did::error::Result<Signature> {
-        IcSigner {}
-            .sign_transaction(transaction, self.key_id, self.derivation_path.clone())
-            .await
-            .map_err(|e| EvmError::from(format!("failed to get message signature: {e}")))
-            .map(Into::into)
+    ) -> TransactionSignerResult<Signature> {
+        let signature = IcSigner {}
+            .sign_transaction(
+                transaction,
+                self.key_id.clone(),
+                self.derivation_path.clone(),
+            )
+            .await?;
+
+        Ok(signature.into())
     }
 
     /// Sign the given digest
-    async fn sign_digest(&self, digest: [u8; 32]) -> did::error::Result<Signature> {
+    async fn sign_digest(&self, digest: [u8; 32]) -> TransactionSignerResult<Signature> {
         let address = self.get_address().await?;
-        IcSigner
+        let signature = IcSigner
             .sign_digest(
                 &address.into(),
                 digest,
-                self.key_id,
+                self.key_id.clone(),
                 self.derivation_path.clone(),
             )
-            .await
-            .map_err(|e| EvmError::from(format!("failed to get message signature: {e}")))
-            .map(Into::into)
+            .await?;
+
+        Ok(signature.into())
     }
 }

@@ -17,6 +17,7 @@ use ic_exports::ic_cdk::api::management_canister::http_request::{
 };
 use ic_exports::ic_cdk_timers::TimerId;
 use ic_exports::ic_kit::ic;
+use ic_log::writer::Logs;
 use ic_log::{init_log, LogSettings};
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
@@ -125,10 +126,10 @@ impl Oracular {
     /// Gets the logs
     /// - `count` is the number of logs to return
     #[update]
-    pub fn ic_logs(&self, count: usize) -> Result<Vec<String>> {
+    pub fn ic_logs(&self, count: usize, offset: usize) -> Result<Logs> {
         self.check_owner(ic::caller())?;
 
-        Ok(ic_log::take_memory_records(count))
+        Ok(ic_log::take_memory_records(count, offset))
     }
 
     /// Get all the oracles created

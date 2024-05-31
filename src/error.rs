@@ -1,4 +1,5 @@
 use candid::CandidType;
+use eth_signer::sign_strategy;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -32,6 +33,9 @@ pub enum Error {
 
     #[error("user not found")]
     UserNotFound,
+
+    #[error("transaction signer error : {0}")]
+    TransactionSignerError(String),
 }
 
 impl From<String> for Error {
@@ -57,5 +61,11 @@ impl From<serde_json::Error> for Error {
 impl From<ethers_core::abi::Error> for Error {
     fn from(value: ethers_core::abi::Error) -> Self {
         Self::Internal(value.to_string())
+    }
+}
+
+impl From<sign_strategy::TransactionSignerError> for Error {
+    fn from(value: sign_strategy::TransactionSignerError) -> Self {
+        Self::TransactionSignerError(value.to_string())
     }
 }

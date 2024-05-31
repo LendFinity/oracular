@@ -1,6 +1,5 @@
 use candid::Principal;
 use did::H160;
-use ic_canister_client::CanisterClient;
 use ic_exports::ic_kit::mock_principals::alice;
 use oracular::canister::{EvmDestination, HttpOrigin, Origin};
 use oracular::error::Result;
@@ -73,7 +72,7 @@ async fn test_create_oracle_http_origin() {
 
     assert_eq!(res.len(), 1);
 
-    let oracle = res.get(0).unwrap();
+    let oracle = res.first().unwrap();
 
     assert_eq!(oracle.0, destination.contract);
     assert_eq!(oracle.1.origin, origin);
@@ -145,7 +144,7 @@ async fn test_update_oracle() {
 
     assert_eq!(res.len(), 1);
 
-    let oracle = res.get(0).unwrap();
+    let oracle = res.first().unwrap();
 
     assert_eq!(oracle.1.origin, new_origin);
 }

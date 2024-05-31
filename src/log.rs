@@ -5,7 +5,7 @@ use ic_log::LoggerConfig;
 use crate::error::Error;
 
 thread_local! {
-    static LOGGER_CONFIG: RefCell<Option<LoggerConfig>> = RefCell::new(None);
+    static LOGGER_CONFIG: RefCell<Option<LoggerConfig>> = const { RefCell::new(None) };
 }
 
 #[derive(Debug, Default)]
