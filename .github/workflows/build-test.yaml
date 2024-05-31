@@ -23,7 +23,7 @@ jobs:
     uses: bitfinity-network/ci-wf/.github/workflows/build-n-test.yml@main
     with:
       runs-on: ubuntu-latest
-      container-image: ghcr.io/bitfinity-network/ic-dev-base:rust1.72-dfx0.15
+      container-image: ghcr.io/bitfinity-network/ic-dev-base:rust1.77-dfx0.19
       git-fetch-depth: '0'
       skip-test: ${{ github.ref_type == 'tag' }}
       audit-allow-warnings: true
