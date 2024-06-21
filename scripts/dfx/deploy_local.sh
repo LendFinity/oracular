@@ -32,15 +32,15 @@ start_dfx() {
 
 entry_point() {
     OWNER=$(dfx identity get-principal)
-    OG_SETTINGS="opt record { enable_console=true; in_memory_records=opt 2048; log_filter=opt \"error,oracular=debug\"; }"
+    LOG_SETTINGS="opt record { enable_console=true; in_memory_records=opt 2048; log_filter=opt \"error,oracular=debug\"; }"
 
     if [ "$INSTALL_MODE" = "create" ]; then
         create "$NETWORK"
         INSTALL_MODE="install"
-        deploy "$NETWORK" "$INSTALL_MODE" "$OWNER" "$OG_SETTINGS"
+        deploy "$NETWORK" "$INSTALL_MODE" "$OWNER" "$LOG_SETTINGS"
 
     elif [ "$INSTALL_MODE" = "upgrade" ] || [ "$INSTALL_MODE" = "reinstall" ]; then
-        deploy "$NETWORK" "$INSTALL_MODE" "$OWNER" "$OG_SETTINGS"
+        deploy "$NETWORK" "$INSTALL_MODE" "$OWNER" "$LOG_SETTINGS"
     else
         echo "Usage: $0 <create|upgrade|reinstall>"
         exit 1
