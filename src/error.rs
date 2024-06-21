@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::parser;
+use ethers_core::abi::ethereum_types::FromDecStrErr;
 
 #[derive(Debug, CandidType, Serialize, Deserialize, Error, PartialEq, Eq)]
 pub enum Error {
@@ -44,6 +45,24 @@ impl From<String> for Error {
     }
 }
 
+impl From<&str> for Error {
+    fn from(error: &str) -> Self {
+        // Convert the &str into an error::Error here
+        // This is a simple example that wraps the &str in your custom error type
+        Self::Internal(error.to_string())
+    }
+}
+
+impl From<FromDecStrErr> for Error {
+    fn from(error: FromDecStrErr) -> Self {
+        Self::Internal(error.to_string())
+    }
+}
+impl From<hex::FromHexError> for Error {
+    fn from(error: hex::FromHexError) -> Self {
+        Self::Internal(error.to_string())
+    }
+}
 pub type Result<T> = std::result::Result<T, Error>;
 
 impl From<ic_canister_client::CanisterClientError> for Error {

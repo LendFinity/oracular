@@ -36,6 +36,8 @@ pub async fn get_transaction(
         let context = context.borrow();
         let signer = context.get_state().signer.get_oracle_signer(user_address);
 
+        log::info!("Signer {:?}", signer.get_address().await?);
+
         signer
     };
 
@@ -54,7 +56,7 @@ pub async fn get_transaction(
 
     let nonce: U256 = serde_json::from_value(nonce)?;
 
-    let gas_price = http::call_jsonrpc(
+    let gas_price_hex = http::call_jsonrpc(
         &provider.hostname,
         "eth_gasPrice",
         serde_json::Value::Null,
@@ -62,22 +64,26 @@ pub async fn get_transaction(
     )
     .await?;
 
-    let gas_price: U256 = serde_json::from_value(gas_price)?;
+    let gas_price: U256 = serde_json::from_value(gas_price_hex)?;
 
-    let gas = http::call_jsonrpc(
-        &provider.hostname,
-        "eth_estimateGas",
-        serde_json::json!([{
-            "from": from,
-            "to": to,
-            "value": value,
-            "data": hex::encode(data.clone()),
-        }]),
-        Some(8000),
-    )
-    .await?;
+    // let gas = http::call_jsonrpc(
+    //     &provider.hostname,
+    //     "eth_estimateGas",
+    //     serde_json::json!([{
+    //         "from": from,
+    //         "to": to,
+    //         "value": value,
+    //         "data": hex::encode(data.clone()),
+    //         "gas": "0x11"
+    //     }]),
+    //     Some(8000),
+    // )
+    // .await?;
 
-    let gas: U256 = serde_json::from_value(gas)?;
+    // let gas: U256 = serde_json::from_value(gas)?;
+
+    // hardcoded gas
+    let gas = U256::from(100000u64);
 
     let mut transaction = ethers_core::types::Transaction {
         from: from.into(),
@@ -111,7 +117,7 @@ pub static UPDATE_PRICE: Lazy<Function> = Lazy::new(|| Function {
     name: "updatePrice".into(),
     inputs: vec![Param {
         name: "_price".into(),
-        kind: ParamType::Int(256),
+        kind: ParamType::Uint(256),
         internal_type: None,
     }],
     outputs: vec![],

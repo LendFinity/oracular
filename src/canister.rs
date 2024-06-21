@@ -56,6 +56,13 @@ pub struct InitData {
     pub log_settings: Option<LogSettings>,
 }
 
+#[derive(Deserialize, Debug)]
+#[allow(non_snake_case)]
+struct Response {
+    _reserve0: U256,
+    _reserve1: U256,
+    _blockTimestampLast: U256,
+}
 impl Oracular {
     fn with_state<R>(&self, f: impl FnOnce(&State) -> R) -> R {
         let ctx = self.context.0.borrow();
@@ -479,12 +486,35 @@ impl Oracular {
                 let params = serde_json::json!([{
                     "to": target_address,
                     "data": data_hex,
-                }]);
+                }, "latest"]);
 
                 let res =
                     http::call_jsonrpc(&provider.hostname, "eth_call", params, Some(80000)).await?;
 
-                serde_json::from_value::<U256>(res)?
+                let result = res.as_str().ok_or("Failed to get result 1--")?;
+                let decoded_result = hex::decode(&result[2..])?;
+
+                let response = Response {
+                    _reserve0: U256::from_big_endian(&decoded_result[0..32]),
+                    _reserve1: U256::from_big_endian(&decoded_result[32..64]),
+                    _blockTimestampLast: U256::from_big_endian(&decoded_result[64..96]),
+                };
+
+                // 10^18
+                let big_value: U256 = U256::from(1_000_000_000_000_000_000u64);
+
+                // multiply 10^18 with reserve 0
+                let reserve0_mul: U256 = response
+                    ._reserve0
+                    .checked_mul(&big_value)
+                    .ok_or(Error::Internal("Multiplication overflow".to_string()))?;
+
+                // divide reserve0_mul with reserve 1
+                let big_price: U256 = reserve0_mul
+                    .checked_div(&response._reserve1)
+                    .ok_or(Error::Internal("Multiplication overflow".to_string()))?;
+
+                big_price
             }
             Origin::Http(HttpOrigin {
                 ref url,
@@ -497,7 +527,7 @@ impl Oracular {
             evm_destination.provider.chain_id,
         );
 
-        let data = UPDATE_PRICE.encode_input(&[ethabi::Token::Int(response.into())])?;
+        let data = UPDATE_PRICE.encode_input(&[ethabi::Token::Uint(response.into())])?;
 
         let provider = Provider {
             chain_id,
