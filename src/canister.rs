@@ -500,16 +500,16 @@ impl Oracular {
                     _blockTimestampLast: U256::from_big_endian(&decoded_result[64..96]),
                 };
 
-                // 10^18
-                let big_value: U256 = U256::from(1_000_000_000_000_000_000u64);
+                // 10^8
+                let big_value: U256 = U256::from(10_000_000u64);
 
-                // multiply 10^18 with reserve 0
+                // multiply 10^8 with reserve0
                 let reserve0_mul: U256 = response
                     ._reserve0
                     .checked_mul(&big_value)
                     .ok_or(Error::Internal("Multiplication overflow".to_string()))?;
 
-                // divide reserve0_mul with reserve 1
+                // divide reserve0_mul with reserve1
                 let big_price: U256 = reserve0_mul
                     .checked_div(&response._reserve1)
                     .ok_or(Error::Internal("Multiplication overflow".to_string()))?;

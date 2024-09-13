@@ -9,7 +9,7 @@ module.exports = {
     "bitfinity-testnet": {
       chainId: 355113,
       url: "https://testnet.bitfinity.network",
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: { mnemonic: process.env.MNEMONIC || "" },
     },
     bitfinity: {
       chainId: 355110,
