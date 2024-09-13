@@ -1,0 +1,21 @@
+{
+  "name": "oracular",
+  "version": "1.0.0",
+  "description": "This is a canister which can be used to deploy oracles and update their values.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "0xdorifto",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
