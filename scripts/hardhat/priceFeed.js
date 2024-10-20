@@ -4,8 +4,8 @@ async function main() {
   const decimals = 8;
   const owner = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
-  const priceFeedWBFT = await PriceFeed.deploy("MNX/USD", decimals, 1, owner);
-  console.log("WBFT/USD PriceFeed deployed to:", priceFeedWBFT.target);
+  const priceFeedWBFT = await PriceFeed.deploy("test", decimals, 1, owner);
+  console.log("test PriceFeed deployed to:", priceFeedWBFT.target);
 }
 
 main()

@@ -2,6 +2,20 @@
 
 This is a canister which can be used to deploy oracles and update their values.
 
+To get the oracles running:
+
+```bash
+./scripts/build.sh
+```
+
+```bash
+./scripts/dfx/deploy_local.sh create
+```
+
+```bash
+./scripts/chapswap/deploy_oracles.sh
+```
+
 ## Addresses (Testnet)
 
 ### ChapSwap Contracts
@@ -20,7 +34,7 @@ This is a canister which can be used to deploy oracles and update their values.
 - CYN/USDT `0xd90919E8eBe090de9C2A2D6E8A92037eEdc7AaD2`
 - FNS/USDT `0xc8174931E8020b80D0A8141F91146FB95cf843a7`
 - INT/USDT `0xCB56529771a42efadcA3030C95E846301EF0D08a`
-  
+
 ### Tokens
 
 - USDT `0xbd9A5c1d9fBbBEC84633ec9Cb046C01fB79809f2`

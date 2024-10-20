@@ -5,10 +5,10 @@ async function main() {
 
   const MyContract = await hre.ethers.getContractFactory("PriceFeed");
 
-  const contractAddress = "0xCC4699e54c5D98b82702305e63835B50e6B5Bfb5";
+  const contractAddress = "0xcFe2E020E3e4DC28Ee29A601CbE7551364fC7AD4";
   const myContract = MyContract.attach(contractAddress).connect(signer);
 
-  const tx = await myContract.updatePrice(100000000);
+  const tx = await myContract.updatePrice(300000000);
 
   console.log("Function called, result:", tx);
 }

@@ -4,7 +4,7 @@ require("dotenv").config();
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   defaultNetwork: "bitfinity-testnet",
-  solidity: "0.8.4",
+  solidity: { version: "0.8.20" },
   networks: {
     "bitfinity-testnet": {
       chainId: 355113,
