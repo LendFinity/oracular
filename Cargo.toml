@@ -52,6 +52,7 @@ ic-exports = { git = "https://github.com/bitfinity-network/canister-sdk", packag
 ] }
 
 [build-dependencies]
+foundry-compilers = "0.10.1"
 ethers = { version = "2.0", features = ["solc-full", "ethers-solc"] }
 anyhow = "1.0"
 
