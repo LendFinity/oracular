@@ -14,7 +14,7 @@ module.exports = {
     bitfinity: {
       chainId: 355110,
       url: "https://mainnet.bitfinity.network",
-      accounts: [process.env.PRIVATE_KEY],
+      accounts: { mnemonic: process.env.MNEMONIC || "" },
     },
   },
   etherscan: {

@@ -7,6 +7,8 @@ args=("$@")
 INSTALL_MODE=${args[0]:-"unset"}
 # Network
 NETWORK=${args[2]:-"ic"}
+# NETWORK=${args[2]:-"playground"}
+
 # Wallet
 WALLET=${args[3]:-"4cfzs-sqaaa-aaaak-aegca-cai"}
 

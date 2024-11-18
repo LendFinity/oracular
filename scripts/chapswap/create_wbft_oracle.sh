@@ -15,7 +15,7 @@ create_oracle_evm() {
                 method = \"getReserves\";
             }
         },
-        60,
+        10,
         record {
             contract = \"0x7beFdBbbf4d686C2c67bcb958cF542f1a2146d91\";
             provider = record {

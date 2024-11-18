@@ -12,7 +12,7 @@ create_oracle_http() {
         },
         60,
         record {
-            contract = \"0x14895FeF32DC208443F2C2A097E0608f4479809e\";
+            contract = \"0x93c52eDAE4d4307703568d213ADbD6Ff0e87a5b8\";
             provider = record {
                 chain_id = 355110;
                 hostname = \"https://mainnet.bitfinity.network\";

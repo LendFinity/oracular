@@ -501,17 +501,17 @@ impl Oracular {
                 };
 
                 // 10^8
-                let big_value: U256 = U256::from(10_000_000u64);
+                let big_value: U256 = U256::from(100_000_000u64);
 
-                // multiply 10^8 with reserve0
-                let reserve0_mul: U256 = response
-                    ._reserve0
+                // multiply 10^18 with reserve 0
+                let reserve1_mul: U256 = response
+                    ._reserve1
                     .checked_mul(&big_value)
                     .ok_or(Error::Internal("Multiplication overflow".to_string()))?;
 
-                // divide reserve0_mul with reserve1
-                let big_price: U256 = reserve0_mul
-                    .checked_div(&response._reserve1)
+                // divide reserve0_mul with reserve 1
+                let big_price: U256 = reserve1_mul
+                    .checked_div(&response._reserve0)
                     .ok_or(Error::Internal("Multiplication overflow".to_string()))?;
 
                 big_price
