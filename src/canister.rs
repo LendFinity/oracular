@@ -537,31 +537,39 @@ impl Oracular {
                 let principal_id =
                     Principal::from_text("u45jl-liaaa-aaaam-abppa-cai").expect("Invalid principal");
 
-                    let mut current_price: u64 = 1;
+                let mut current_price: u64 = 1;
 
-                    match call::<(), LatestTokenResponse>(
-                        principal_id,
-                        "get_latest",
-                        (),
-                    ).await {
-                        Ok(result) => {
-                            let data = result.0;  // Extract first tuple element
-                            for ((token1, token2), symbol, price) in data {
-                                if symbol == *pair {
-                                    log::debug!("Price: ${:.3}", price);
-                                    current_price = (price * 100_000_000.0) as u64;
-                                }
+                match call::<(), LatestTokenResponse>(
+                    principal_id,
+                    "get_latest",
+                    (),
+                ).await {
+                    Ok(result) => {
+                        let data = result.0;
+                        for ((_token1, _token2), symbol, price) in data {
+                            if symbol == *pair {
+                                log::debug!("{} Price: ${:.3}", pair, price);
+                                current_price = (price * 100_000_000.0) as u64;
+                                break;
                             }
-                            return Ok(());
-                        },
-                        Err(e) => {
-                            log::debug!("Call failed: {:?}", e);
-                            return Ok(());
                         }
-                    }
+                        
+                        if current_price == 1 {
+                            match pair.as_str() {
+                                "ICP/USD" => current_price = 9 * 100_000_000,
+                                "ckUSDC/USD" => current_price = 90000 * 100_000_000,
+                                "ckBTC/USD" => current_price = 1 * 100_000_000,
+                                _ => {}
+                            }
+                        }
 
-                // create some edge cases
-                U256::from(current_price);
+                        U256::from(current_price)
+                    },
+                    Err(e) => {
+                        log::debug!("Call failed: {:?}", e);
+                        return Ok(());
+                    }
+                }
             }
         };
 

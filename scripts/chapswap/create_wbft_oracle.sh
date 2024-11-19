@@ -25,7 +25,7 @@ create_oracle_evm() {
         }
     )"
 
-    dfx canister call oracular create_oracle "$oracle_args" --playground
+    dfx canister call oracular create_oracle "$oracle_args"
 }
 
 create_oracle_evm
