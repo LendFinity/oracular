@@ -4,7 +4,12 @@
       "build": "",
       "type": "custom",
       "candid": ".artifact/oracular.did",
-      "wasm": ".artifact/oracular.wasm.gz"
+      "wasm": ".artifact/oracular.wasm.gz",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     }
   }
 }

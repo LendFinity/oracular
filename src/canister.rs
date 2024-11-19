@@ -4,6 +4,7 @@ use std::rc::Rc;
 use std::str::FromStr;
 use std::time::Duration;
 
+use candid::Nat;
 use candid::{CandidType, Principal};
 use did::{H160, H256, U256};
 use eth_signer::sign_strategy::TransactionSigner;
@@ -12,6 +13,7 @@ use ethers_core::types::Signature;
 use futures::TryFutureExt;
 use ic_canister::{generate_idl, init, query, update, Canister, Idl, PreUpdate};
 use ic_exports::ic_cdk;
+use ic_exports::ic_cdk::api::call::call;
 use ic_exports::ic_cdk::api::management_canister::http_request::{
     HttpResponse as MHttpResponse, TransformArgs,
 };
@@ -34,6 +36,9 @@ use crate::state::{Settings, State, UpdateOracleMetadata};
 
 /// Type alias for the shared mutable context implementation we use in the canister
 type SharedContext = Rc<RefCell<ContextImpl>>;
+
+type LatestTokenRow = ((Nat, Nat), String, f64);
+type LatestTokenResponse = (Vec<LatestTokenRow>,);
 
 #[derive(Clone, Default)]
 pub struct ContextWrapper(pub SharedContext);
@@ -63,6 +68,10 @@ struct Response {
     _reserve1: U256,
     _blockTimestampLast: U256,
 }
+
+// #[derive(CandidType, Deserialize)]
+// pub struct LatestTokenRow (pub (Nat,Nat,),pub String,pub f64,);
+
 impl Oracular {
     fn with_state<R>(&self, f: impl FnOnce(&State) -> R) -> R {
         let ctx = self.context.0.borrow();
@@ -520,6 +529,40 @@ impl Oracular {
                 ref url,
                 ref json_path,
             }) => http::get_price(url, json_path).await?,
+            Origin::Canister(CanisterOrigin {
+                // ref canister_id,
+                // ref method_name,
+                ref pair,
+            }) => {
+                let principal_id =
+                    Principal::from_text("u45jl-liaaa-aaaam-abppa-cai").expect("Invalid principal");
+
+                    let mut current_price: u64 = 1;
+
+                    match call::<(), LatestTokenResponse>(
+                        principal_id,
+                        "get_latest",
+                        (),
+                    ).await {
+                        Ok(result) => {
+                            let data = result.0;  // Extract first tuple element
+                            for ((token1, token2), symbol, price) in data {
+                                if symbol == *pair {
+                                    log::debug!("Price: ${:.3}", price);
+                                    current_price = (price * 100_000_000.0) as u64;
+                                }
+                            }
+                            return Ok(());
+                        },
+                        Err(e) => {
+                            log::debug!("Call failed: {:?}", e);
+                            return Ok(());
+                        }
+                    }
+
+                // create some edge cases
+                U256::from(current_price);
+            }
         };
 
         let (hostname, chain_id) = (
@@ -579,6 +622,8 @@ pub enum Origin {
     Evm(EvmOrigin),
     /// HTTP origin
     Http(HttpOrigin),
+    /// Canister origin
+    Canister(CanisterOrigin),
 }
 
 /// EVM origin data
@@ -599,6 +644,14 @@ pub struct HttpOrigin {
     pub url: String,
     /// The JSON path that will be used to extract the data
     pub json_path: String,
+}
+
+/// Canister origin
+#[derive(Debug, Clone, CandidType, Serialize, Deserialize, PartialEq, Eq)]
+pub struct CanisterOrigin {
+    // pub canister_id: Principal,
+    // pub method_name: String,
+    pub pair: String,
 }
 
 /// This is the destination of the data that will be used to update the price

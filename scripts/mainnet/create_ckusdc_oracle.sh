@@ -1,19 +1,13 @@
 #!/usr/bin/env sh
 set -e
 
-create_oracle_evm() {
+create_oracle_canister() {
     oracle_args="(
         \"0xb29423Ff11d409D6A9fe58b8E97437E4371356a5\",
         variant {
-            Evm = record {
-                provider = record {
-                    chain_id = 355113;
-                    hostname = \"https://testnet.bitfinity.network\";
-
-                };
-                target_address = \"0xac7cE1b7032391eABC55BB3438C76f9e6Fb04D43\";
-                method = \"getReserves\";
-            }
+            Canister = record {
+            pair = \"ckUSDC/USD\";
+        }
         },
         10,
         record {
@@ -25,7 +19,7 @@ create_oracle_evm() {
         }
     )"
 
-    dfx canister call oracular create_oracle "$oracle_args"
+    dfx canister call oracular create_oracle "$oracle_args" --playground
 }
 
-create_oracle_evm
+create_oracle_canister

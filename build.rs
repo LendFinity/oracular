@@ -3,7 +3,8 @@
 use std::env;
 use std::path::PathBuf;
 
-use foundry_compilers::{Project, ProjectPathsConfig};
+use ethers::solc::{Project, ProjectPathsConfig};
+// use foundry_compilers::{Project, ProjectPathsConfig};
 
 fn compile(
     root: &PathBuf,
@@ -18,9 +19,10 @@ fn compile(
         .root(root)
         .build()?;
 
-    let project = Project::builder()
-        .paths(build_path_config)
-        .build(Default::default())?;
+    let project = Project::builder().paths(build_path_config).build()?;
+    // let project = Project::builder()
+    //     .paths(build_path_config)
+    //     .build(Default::default())?;
 
     project.rerun_if_sources_changed();
     let compiled = project.compile()?;
